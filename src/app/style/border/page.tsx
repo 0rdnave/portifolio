@@ -51,7 +51,7 @@ export default function StyleBorder() {
     useState<string>("0");
 
   const [showCopyAlert, setShowCopyAlert] = useState(false);
-  const [styleGenerated, setStyleGenerated] = useState<string>();
+  const [styleGenerated] = useState<string>();
 
   const copyGeneratedCode = () => {
     styleGenerated && navigator.clipboard.writeText(styleGenerated);

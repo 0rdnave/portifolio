@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 //animate__zoomIn Talvez esse pra victory animate.css site
 //animate__tada ou esse. src/app/rockPaperScissors/victoryScreen/page.tsx

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import { FaHandPaper, FaHandRock, FaHandScissors } from "react-icons/fa";
@@ -53,6 +54,7 @@ const calculateRockPaperScissors: React.FC = () => {
             (playerChoice === "rock" && computerChoice === "scissors") ||
             (playerChoice === "scissors" && computerChoice === "paper")
           ) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const count = (e: any) => {
               setplayerPoints(playerPoints + 1);
               setGameResult("You win!");
@@ -60,6 +62,7 @@ const calculateRockPaperScissors: React.FC = () => {
 
             count(e);
           } else {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const count = (e: any) => {
               setComputerPoints(computerPoints + 1);
               setGameResult("You lose!");
