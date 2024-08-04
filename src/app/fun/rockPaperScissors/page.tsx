@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaHandPaper, FaHandRock, FaHandScissors } from "react-icons/fa";
 import { Rings } from "react-loading-icons";
 import GameResult from "./GameResult";
+
 const calculateRockPaperScissors: React.FC = () => {
   const [playerChoice, setPlayerChoice] = useState<string>("");
   const [gameResult, setGameResult] = useState<string>("");
@@ -13,6 +14,7 @@ const calculateRockPaperScissors: React.FC = () => {
   const [isSelected2, setIsSelected2] = useState<boolean>(false);
   const [isSelected3, setIsSelected3] = useState<boolean>(false);
   const [showGame, setShowGame] = useState<boolean>(true);
+  const handleShowGame = () => setShowGame(!showGame);
   const changeColor = (button: any) => {
     if (button == "button1") {
       setIsSelected1(true);
@@ -29,17 +31,20 @@ const calculateRockPaperScissors: React.FC = () => {
     }
   };
 
+  const resetGame = () => {
+    setplayerPoints(0);
+    setComputerPoints(0);
+    setPlayerChoice("");
+    setIsSelected1(false);
+    setIsSelected2(false);
+    setIsSelected3(false);
+  };
+
   const rpsOptions = ["rock", "scissors", "paper"];
   const computerChoice =
     Object.values(rpsOptions)[Math.floor(Math.random() * 3)];
 
   const handlePlayerChoice = (e: any) => {
-    /* if (playerPoints == 1) {
-      return VictoryScreen();
-    }
-    if (computerPoints == 1) {
-      return DefeatScreen();
-    }*/
     if (playerChoice === "") {
       setGameResult("Select an option!");
     }
@@ -59,7 +64,6 @@ const calculateRockPaperScissors: React.FC = () => {
               setplayerPoints(playerPoints + 1);
               setGameResult("You win!");
             };
-
             count(e);
           } else {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -67,16 +71,33 @@ const calculateRockPaperScissors: React.FC = () => {
               setComputerPoints(computerPoints + 1);
               setGameResult("You lose!");
             };
-
             count(e);
           }
+          setTimeout(() => {
+            if (gameResult == "GAME OVER!") {
+              resetGame();
+            } else {
+              setShowGame(!showGame);
+            }
+          }, 1000);
           setShowGame(!showGame);
         }, 3000);
       }, 1000);
     }
   };
 
-  const handleShowGame = () => setShowGame(!showGame);
+  useEffect(() => {
+    setTimeout(() => {
+      if (computerPoints >= 3 || playerPoints >= 3) {
+        setGameResult("GAME OVER!");
+        setShowGame(false);
+        setTimeout(() => {
+          resetGame();
+        }, 3000);
+        console.log("game over");
+      }
+    }, 1000);
+  }, [computerPoints, playerPoints, showGame]);
 
   return (
     <>
@@ -98,11 +119,8 @@ const calculateRockPaperScissors: React.FC = () => {
 
           <div className="content-rps flex flex-col-reverse flex-wrap items-center bg-primary-400">
             <div className="content">
-              {/*  {computerPoints == 1 && <div> {gameOverScreen()} </div>}
-            {playerPoints == 1 && <div> {gameOverScreen()}</div>}*/}
-
               <div className="flex place-content-center font-semibold text-success-300">
-                Select and play!
+                Select and play! First to 3 wins!
               </div>
               <div className="grid justify-items-center">
                 <div
@@ -175,22 +193,21 @@ const calculateRockPaperScissors: React.FC = () => {
                 <p>You: {playerPoints}</p>
                 <p>Computer: {computerPoints}</p>
               </div>
+
               <div>
-                <div className="winner flex justify-center sm:justify-center text-success-300 text-4xl">
-                  <button
-                    className="w-96 h-14 p-1 m-3 rounded-lg border border-dark-700 transition ease-in-out delay-150 bg-success-700 hover:bg-success-400 duration-300"
-                    onClick={() => {
-                      handlePlayerChoice("");
-                    }}
-                  >
-                    Play
-                  </button>
-                </div>
-                {gameResult && !playerChoice && (
-                  <div className="winner flex items-start gap-2 justify-center sm:justify-center text-success-300 text-4xl">
-                    <p>{gameResult}</p>
+                {playerChoice && gameResult !== "Opponent is choosing..." && (
+                  <div className="winner flex justify-center sm:justify-center text-success-300 text-4xl">
+                    <button
+                      className="w-96 h-14 p-1 m-3 rounded-lg border border-dark-700 transition ease-in-out delay-150 bg-success-700 hover:bg-success-400 duration-300"
+                      onClick={() => {
+                        handlePlayerChoice("");
+                      }}
+                    >
+                      Play
+                    </button>
                   </div>
                 )}
+
                 {gameResult === "Opponent is choosing..." && computerChoice && (
                   <div className="winner flex items-start gap-2 justify-center sm:justify-center text-success-300 text-4xl">
                     <p>{gameResult}</p>
@@ -199,14 +216,6 @@ const calculateRockPaperScissors: React.FC = () => {
                     </p>
                   </div>
                 )}
-                {gameResult &&
-                  playerChoice &&
-                  !(gameResult === "Opponent is choosing...") && (
-                    <div className="winner flex items-start gap-2 justify-center sm:justify-center text-success-300 text-4xl">
-                      <div>Result : </div>
-                      <p>{gameResult}</p>
-                    </div>
-                  )}
               </div>
               <div className="footer">
                 <div className="footer home flex pl-32 visible sm:hidden">
@@ -224,7 +233,12 @@ const calculateRockPaperScissors: React.FC = () => {
           </footer>
         </div>
       ) : (
-        <GameResult setShowGame={handleShowGame} result={gameResult} />
+        <GameResult
+          setShowGame={handleShowGame}
+          result={gameResult}
+          playerPoints={playerPoints}
+          computerPoints={computerPoints}
+        />
       )}
     </>
   );
