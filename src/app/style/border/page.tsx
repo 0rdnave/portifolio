@@ -61,8 +61,6 @@ export default function StyleBorder() {
     }, 2000);
   };
 
-  const getFormattedStyle = () => {};
-
   return (
     <>
       {showCopyAlert && (
