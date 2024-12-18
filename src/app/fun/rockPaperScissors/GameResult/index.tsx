@@ -9,7 +9,12 @@ interface IGameResultProps {
   setShowGame: () => void;
 }
 
-const GameResult = ({ result, setShowGame }: IGameResultProps) => {
+const GameResult = ({
+  result,
+  setShowGame,
+  playerPoints,
+  computerPoints,
+}: IGameResultProps) => {
   const winAudio = useRef<HTMLAudioElement>(null);
   const loseAudio = useRef<HTMLAudioElement>(null);
   const tieAudio = useRef<HTMLAudioElement>(null);

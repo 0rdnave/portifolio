@@ -35,6 +35,12 @@ export default function Fun() {
             <Link href="fun/calc">Calculator</Link>
           </div>
         </div>
+
+        <div className="flex justify-center items-center mx-2 w-48 h-40 bg-primary-300">
+          <div className="text-light-300 font-bold text-lg">
+            <Link href="fun/dndSheetCreator">Dnd Sheet Creaator</Link>
+          </div>
+        </div>
       </div>
     </>
   );
