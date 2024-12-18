@@ -1,6 +1,5 @@
-export default class CNPJHandler {
+export default class CNPJHandlerAlphaNum {
   constructor() {
-    // Opcional: Pode inicializar algo se necessário
   }
 
   /**
@@ -8,59 +7,67 @@ export default class CNPJHandler {
    * @returns {string} Um CNPJ válido.
    */
   public generateCNPJ(): string {
-    const randomDigits = (length: number): number[] =>
-      Array.from({ length }, () => Math.floor(Math.random() * 10));
+    const randomAlphanumeric = (length: number): string[] =>
+      Array.from(
+        { length },
+        () =>
+          Math.random() < 0.5
+            ? String.fromCharCode(65 + Math.floor(Math.random() * 26)) // Letra maiúscula (A-Z)
+            : String.fromCharCode(48 + Math.floor(Math.random() * 10)), // Dígito (0-9)
+      );
 
-    // Gera os primeiros 12 dígitos do CNPJ
-    const baseCNPJ = randomDigits(8).concat([0, 0, 0, 1]);
+    const baseCNPJ = randomAlphanumeric(8).concat(["0", "0", "0", "1"]);
 
-    // Calcula os dígitos verificadores
-    const firstVerifier = this.calculateVerifier(baseCNPJ);
-    const secondVerifier = this.calculateVerifier([...baseCNPJ, firstVerifier]);
+    const numericBase = baseCNPJ.map((char) =>
+      isNaN(parseInt(char, 10)) ? char.charCodeAt(0) % 10 : parseInt(char, 10),
+    );
+    const firstVerifier = this.calculateVerifier(numericBase);
+    const secondVerifier = this.calculateVerifier([
+      ...numericBase,
+      firstVerifier,
+    ]);
 
-    // Monta o CNPJ completo
-    const completeCNPJ = [...baseCNPJ, firstVerifier, secondVerifier].join("");
+    const completeCNPJ = baseCNPJ.join("") + firstVerifier + secondVerifier;
 
-    // Formata o CNPJ no padrão XX.XXX.XXX/XXXX-XX
     return completeCNPJ.replace(
-      /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+      /^([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})(\d{4})(\d{2})$/,
       "$1.$2.$3/$4-$5",
     );
   }
 
   /**
-   * Valida se um CNPJ é válido.
+   * Valida se um CNPJ alfanumérico é válido.
    * @param cnpj O CNPJ a ser validado.
    * @returns {boolean} Retorna `true` se o CNPJ for válido, caso contrário, `false`.
    */
   public validateCNPJ(cnpj: string): boolean {
-    // Remove caracteres não numéricos
-    const sanitizedCNPJ = cnpj.replace(/[^\d]/g, "");
+    const sanitizedCNPJ = cnpj.replace(/[^\w]/g, "");
 
-    // Valida o tamanho (precisa ter 14 dígitos)
     if (sanitizedCNPJ.length !== 14) {
       return false;
     }
 
-    // Verifica se todos os dígitos são iguais (ex.: 111.111.111/1111-11)
-    if (/^(\d)\1+$/.test(sanitizedCNPJ)) {
+    if (/^([A-Z0-9])\1+$/.test(sanitizedCNPJ)) {
       return false;
     }
 
-    // Separa os dígitos principais e verificadores
-    const digits = sanitizedCNPJ.split("").map(Number);
-    const baseCNPJ = digits.slice(0, 12);
-    const firstVerifier = digits[12];
-    const secondVerifier = digits[13];
+    const baseCNPJ = sanitizedCNPJ
+      .slice(0, 12)
+      .split("")
+      .map((char) =>
+        isNaN(parseInt(char, 10))
+          ? char.charCodeAt(0) % 10
+          : parseInt(char, 10),
+      );
+    const firstVerifier = parseInt(sanitizedCNPJ[12], 10);
+    const secondVerifier = parseInt(sanitizedCNPJ[13], 10);
 
-    // Calcula os dígitos verificadores esperados
     const calculatedFirstVerifier = this.calculateVerifier(baseCNPJ);
     const calculatedSecondVerifier = this.calculateVerifier([
       ...baseCNPJ,
       calculatedFirstVerifier,
     ]);
 
-    // Compara os dígitos calculados com os fornecidos
     return (
       firstVerifier === calculatedFirstVerifier &&
       secondVerifier === calculatedSecondVerifier
@@ -78,39 +85,40 @@ export default class CNPJHandler {
       throw new Error("CNPJ principal inválido.");
     }
 
-    if (count > 9999) {
+    if (count > 999) {
       throw new Error("Número de filiais excede o limite permitido (9999).");
     }
 
-    // Remove os caracteres não numéricos e pega os 8 primeiros dígitos do CNPJ base
-    const baseCNPJ = mainCNPJ.replace(/[^\d]/g, "").slice(0, 8);
+    const baseCNPJ = mainCNPJ.replace(/[^\w]/g, "").slice(0, 8);
     const filiais: string[] = [];
     const existing = new Set<string>();
 
     for (let i = 1; i <= count; i++) {
-      // Adiciona o número sequencial com 4 dígitos
       const filialBase = `${baseCNPJ}${i.toString().padStart(4, "0")}`;
 
-      // Calcula os dígitos verificadores
-      const firstVerifier = this.calculateVerifier(
-        filialBase.split("").map(Number),
-      );
-      const secondVerifier = this.calculateVerifier(
-        `${filialBase}${firstVerifier}`.split("").map(Number),
-      );
+      const numericBase = filialBase
+        .split("")
+        .map((char) =>
+          isNaN(parseInt(char, 10))
+            ? char.charCodeAt(0) % 10
+            : parseInt(char, 10),
+        );
 
-      // Monta o CNPJ completo
+      const firstVerifier = this.calculateVerifier(numericBase);
+      const secondVerifier = this.calculateVerifier([
+        ...numericBase,
+        firstVerifier,
+      ]);
+
       const completeCNPJ = `${filialBase}${firstVerifier}${secondVerifier}`;
 
-      // Garante que o CNPJ é único
       if (existing.has(completeCNPJ)) continue;
 
       existing.add(completeCNPJ);
 
-      // Formata o CNPJ para o padrão brasileiro
       filiais.push(
         completeCNPJ.replace(
-          /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+          /^([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})(\d{4})(\d{2})$/,
           "$1.$2.$3/$4-$5",
         ),
       );
