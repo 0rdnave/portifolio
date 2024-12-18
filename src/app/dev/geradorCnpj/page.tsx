@@ -76,20 +76,23 @@ const GeradorCNPJ: React.FC = () => {
     <div className="p-6 font-sans">
       <h1 className="text-2xl font-bold mb-4 color-light">Gerador de CNPJ</h1>
       <div className="formulario bg-white p-5 overflow-x-clip">
-
         {/* Gerar CNPJ Principal */}
         <div className="mb-4">
-          <input
-            type="checkbox"
-            checked={onlyNumbers}
-            onChange={(e) => {
-              setOnlyNumbers(e.target.checked);
-              setIsCnpjValid(null);
-            }}
-            onClick={() => changeCNPJHandlers()}
-            placeholder="Digite ou gere um CNPJ"
-            className="p-2 border border-gray-300 rounded w-full max-w-md text-center mb-2"
-          />
+          <label htmlFor="onlyNumbers">
+            <input
+              id="onlyNumbers"
+              type="checkbox"
+              checked={onlyNumbers}
+              onChange={(e) => {
+                setOnlyNumbers(e.target.checked);
+                setIsCnpjValid(null);
+              }}
+              onClick={() => changeCNPJHandlers()}
+              placeholder="Digite ou gere um CNPJ"
+              className="p-2 border border-gray-300 rounded mb-2 mr-2"
+            />
+            somente CNPJs numéricos?
+          </label>
         </div>
 
         {/* Gerar CNPJ Principal */}
