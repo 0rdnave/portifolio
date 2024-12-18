@@ -134,7 +134,7 @@ export default function dndCharSheet() {
             </main>
 
             <footer className="mt-8 text-sm text-gray-500">
-              <p>Made with ❤️ for RPG enthusiasts</p>
+              <h1> EM CONSTRUÇÃO </h1>
             </footer>
           </div>
         </div>
