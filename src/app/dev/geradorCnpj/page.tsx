@@ -1,5 +1,6 @@
 "use client";
 
+import CNPJHandlerAlphaNum from "@/shared/model/cnpj-alpha-num.model";
 import CNPJHandler from "@/shared/model/cnpj.model";
 import React, { useState } from "react";
 
@@ -10,12 +11,19 @@ type Filial = {
 };
 
 const GeradorCNPJ: React.FC = () => {
+  const [onlyNumbers, setOnlyNumbers] = useState<boolean>(false);
   const [cnpj, setCnpj] = useState<string>("");
   const [isCnpjValid, setIsCnpjValid] = useState<boolean | null>(null);
   const [filiais, setFiliais] = useState<Filial[]>([]);
   const [numFiliais, setNumFiliais] = useState<number>(1);
 
-  const handler: CNPJHandler = new CNPJHandler();
+  const handler: CNPJHandlerAlphaNum = new CNPJHandlerAlphaNum();
+  const handlerOnlyNumbers: CNPJHandler = new CNPJHandler();
+
+  const changeCNPJHandlers = () => {
+    setIsCnpjValid(null);
+    setFiliais([]);
+  }
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const novoValor = e.target.value;
@@ -32,22 +40,25 @@ const GeradorCNPJ: React.FC = () => {
   };
 
   const gerarCNPJ = () => {
-    const novoCnpj = handler.generateCNPJ();
+    const novoCnpj = onlyNumbers ? handlerOnlyNumbers.generateCNPJ() : handler.generateCNPJ();
     setCnpj(novoCnpj);
     setIsCnpjValid(null);
     setFiliais([]);
   };
 
   const validarCNPJ = (cnpjParaValidar: string): boolean => {
-    const cnpjSemMascara = cnpjParaValidar.replace(/\D/g, "");
-    if (!cnpjSemMascara) return false;
-    return handler.validateCNPJ(cnpjSemMascara);
+    if (!cnpjParaValidar)
+      return false;
+    else
+      return onlyNumbers
+        ? handlerOnlyNumbers.validateCNPJ(cnpjParaValidar)
+        : handler.validateCNPJ(cnpjParaValidar);
   };
 
   const gerarFiliais = (quantidade: number) => {
     if (isCnpjValid) {
-      const filiaisCnpjs = handler.generateFiliais(cnpj, quantidade);
-      const novasFiliais = filiaisCnpjs.map((cnpjFilial, index) => ({
+      const filiaisCnpjs = onlyNumbers ? handlerOnlyNumbers.generateFiliais(cnpj, quantidade) : handler.generateFiliais(cnpj, quantidade);
+      const novasFiliais = filiaisCnpjs.map((cnpjFilial: string, index: number) => ({
         id: index + 1,
         cnpj: cnpjFilial,
         isValid: null,
@@ -78,8 +89,26 @@ const GeradorCNPJ: React.FC = () => {
   return (
     <div className="p-6 font-sans">
       <h1 className="text-2xl font-bold mb-4 color-light">Gerador de CNPJ</h1>
-
       <div className="formulario bg-white p-5 overflow-x-clip">
+        {/* Gerar CNPJ Principal */}
+        <div className="mb-4">
+          <label htmlFor="onlyNumbers">
+            <input
+              id="onlyNumbers"
+              type="checkbox"
+              checked={onlyNumbers}
+              onChange={(e) => {
+                setOnlyNumbers(e.target.checked);
+                setIsCnpjValid(null);
+              }}
+              onClick={() => changeCNPJHandlers()}
+              placeholder="Digite ou gere um CNPJ"
+              className="p-2 border border-gray-300 rounded mb-2 mr-2"
+            />
+            somente CNPJs numéricos?
+          </label>
+        </div>
+
         {/* Gerar CNPJ Principal */}
         <div className="mb-4">
           <input
